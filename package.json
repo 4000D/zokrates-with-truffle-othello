@@ -1,0 +1,29 @@
+{
+  "name": "truffle-with-zokrates-othello",
+  "version": "0.0.1",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test",
+    "circuit:othelloMove:test": "TEST=1 npm run circuit:othelloMove:build",
+    "circuit:othelloMove:build": "DIR=othelloMove npm run docker:build:dir",
+    "circuit:othelloDecide:test": "TEST=1 npm run circuit:othelloDecide:build",
+    "circuit:othelloDecide:build": "DIR=othelloDecide npm run docker:build:dir",
+    "docker": "npm run docker:start && npm run docker:build",
+    "docker:start": "docker run -d -it --name zokrates -v $(pwd)/circuits:/home/zokrates/circuits -v $(pwd)/contracts:/home/zokrates/contracts 4000d/zokrates:latest /bin/bash",
+    "docker:stop": "docker stop zokrates && docker rm zokrates",
+    "docker:restart": "npm run docker:stop && npm run docker:start",
+    "docker:build": "docker exec -it -e TEST=$TEST --workdir /home/zokrates/circuits zokrates /bin/bash build.sh",
+    "docker:build:dir": "docker exec -it -e TEST=$TEST --workdir /home/zokrates/circuits zokrates /bin/bash build.sh $DIR",
+    "docker:console": "docker exec -it --workdir /home/zokrates/circuits zokrates /bin/bash"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "ganache-cli": "^6.7.0",
+    "truffle": "^5.0.37"
+  }
+}

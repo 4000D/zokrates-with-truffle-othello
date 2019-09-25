@@ -1,0 +1,287 @@
+import "utils/binary/or.code" as OR
+import "utils/binary/and.code" as AND
+import "utils/binary/not.code" as NOT
+
+import "../lib/boolean/fromBool.code" as fromBool
+import "../lib/boolean/toBool.code" as toBool
+
+def emptyBoard() -> (field[8]):
+  return [0, 0, 0, 0, 0, 0, 0, 0]
+
+def inRange(field i) -> (field):
+  return fromBool(0 <= i && i < 8)
+
+def getState(field[8] b, field i) -> (field):
+  return if inRange(i) == 1 then b[i] else 0 fi
+
+def otherPlayer(field player) -> (field):
+  OR(fromBool(player == 1), fromBool(player == 2)) == 1
+
+  return if player == 1 then 2 else 1 fi
+
+def getBoard(\
+  field[8] b0,\
+  field[8] b1,\
+  field[8] b2,\
+  field[8] b3,\
+  field[8] b4,\
+  field[8] b5,\
+  field[8] b6,\
+  field[8] b7,\
+  field i\
+) -> (field[8]):
+  return \
+    if inRange(i) == 0 then emptyBoard() else \
+    if i == 0 then b0 else \
+    if i == 1 then b1 else \
+    if i == 2 then b2 else \
+    if i == 3 then b3 else \
+    if i == 4 then b4 else \
+    if i == 5 then b5 else \
+    if i == 6 then b6 else b7 \
+    fi fi fi fi fi fi fi fi
+
+// diagonal (left top to right bottom)
+def getDiogonal1(\
+  field[8] bx0,\
+  field[8] bx1,\
+  field[8] bx2,\
+  field[8] bx3,\
+  field[8] bx4,\
+  field[8] bx5,\
+  field[8] bx6,\
+  field[8] bx7,\
+  field x, field y\
+) -> (field[8]):
+  // TODO: better way to get board?
+  field[8] b0 = getBoard(bx0, bx1, bx2, bx3, bx4, bx5, bx6, bx7, 0 + y - x)
+  field[8] b1 = getBoard(bx0, bx1, bx2, bx3, bx4, bx5, bx6, bx7, 1 + y - x)
+  field[8] b2 = getBoard(bx0, bx1, bx2, bx3, bx4, bx5, bx6, bx7, 2 + y - x)
+  field[8] b3 = getBoard(bx0, bx1, bx2, bx3, bx4, bx5, bx6, bx7, 3 + y - x)
+  field[8] b4 = getBoard(bx0, bx1, bx2, bx3, bx4, bx5, bx6, bx7, 4 + y - x)
+  field[8] b5 = getBoard(bx0, bx1, bx2, bx3, bx4, bx5, bx6, bx7, 5 + y - x)
+  field[8] b6 = getBoard(bx0, bx1, bx2, bx3, bx4, bx5, bx6, bx7, 6 + y - x)
+  field[8] b7 = getBoard(bx0, bx1, bx2, bx3, bx4, bx5, bx6, bx7, 7 + y - x)
+
+  return [ \
+    b0[0], \
+    b1[1], \
+    b2[2], \
+    b3[3], \
+    b4[4], \
+    b5[5], \
+    b6[6], \
+    b7[7] \
+  ]
+
+// diagonal (left bottom to right top)
+def getDiogonal2(\
+  field[8] bx0,\
+  field[8] bx1,\
+  field[8] bx2,\
+  field[8] bx3,\
+  field[8] bx4,\
+  field[8] bx5,\
+  field[8] bx6,\
+  field[8] bx7,\
+  field x, field y\
+) -> (field[8]):
+  return getDiogonal1(bx7, bx6, bx5, bx4, bx3, bx2, bx1, bx0, x, 7 - y)
+
+def orBoard(field v1, field v2) -> (field):
+  return if v1 > 0 then v1 else v2 fi
+
+def mul(field[8] r1, field[8] r2) -> (field[8]):
+  return [ \
+    r1[0] * r2[0], \
+    r1[1] * r2[1], \
+    r1[2] * r2[2], \
+    r1[3] * r2[3], \
+    r1[4] * r2[4], \
+    r1[5] * r2[5], \
+    r1[6] * r2[6], \
+    r1[7] * r2[7] \
+  ]
+
+def diff(field[8] r1, field[8] r2) -> (field[8]):
+  return [ \
+    if r1[0] == r2[0] then 0 else 1 fi, \
+    if r1[1] == r2[1] then 0 else 1 fi, \
+    if r1[2] == r2[2] then 0 else 1 fi, \
+    if r1[3] == r2[3] then 0 else 1 fi, \
+    if r1[4] == r2[4] then 0 else 1 fi, \
+    if r1[5] == r2[5] then 0 else 1 fi, \
+    if r1[6] == r2[6] then 0 else 1 fi, \
+    if r1[7] == r2[7] then 0 else 1 fi \
+  ]
+
+def equal(field[8] r1, field[8] r2) -> (field[8]):
+  return [ \
+    if r1[0] == r2[0] then 1 else 0 fi, \
+    if r1[1] == r2[1] then 1 else 0 fi, \
+    if r1[2] == r2[2] then 1 else 0 fi, \
+    if r1[3] == r2[3] then 1 else 0 fi, \
+    if r1[4] == r2[4] then 1 else 0 fi, \
+    if r1[5] == r2[5] then 1 else 0 fi, \
+    if r1[6] == r2[6] then 1 else 0 fi, \
+    if r1[7] == r2[7] then 1 else 0 fi \
+  ]
+
+def filter(field[8] r, field v) -> (field[8]):
+  return [ \
+    if r[0] == v then 1 else 0 fi, \
+    if r[1] == v then 1 else 0 fi, \
+    if r[2] == v then 1 else 0 fi, \
+    if r[3] == v then 1 else 0 fi, \
+    if r[4] == v then 1 else 0 fi, \
+    if r[5] == v then 1 else 0 fi, \
+    if r[6] == v then 1 else 0 fi, \
+    if r[7] == v then 1 else 0 fi \
+  ]
+
+def join(field[8] r1, field[8] r2) -> (field[8]):
+  return [ \
+    orBoard(r1[0], r2[0]), \
+    orBoard(r1[1], r2[1]), \
+    orBoard(r1[2], r2[2]), \
+    orBoard(r1[3], r2[3]), \
+    orBoard(r1[4], r2[4]), \
+    orBoard(r1[5], r2[5]), \
+    orBoard(r1[6], r2[6]), \
+    orBoard(r1[7], r2[7]) \
+  ]
+
+def checkMove(field player, field[8] o, field[8] n, field i) -> (field):
+  o[i] == 0
+  n[i] == player
+
+  o[i] = player
+
+  field[8] r1 = filter(n, player)
+
+  field l = i
+  field r = i
+
+  field lBroken = 0
+  field rBroken = 0
+
+  for field j in 1..7 do
+    lBroken = lBroken + if OR(fromBool(inRange(i-j) == 0), NOT(fromBool(getState(r1, i-j) == player))) == 1 then 1 else 0 fi
+    rBroken = rBroken + if OR(fromBool(inRange(i+j) == 0), NOT(fromBool(getState(r1, i+j) == player))) == 1 then 1 else 0 fi
+
+    getState(o, i-j) == getState(n, i-j)
+    getState(o, i+j) == getState(n, i+j)
+
+    l = if AND( \
+      AND( \
+        inRange(i-j), \
+        fromBool(lBroken == 0) \
+      ), \
+      AND( \
+        fromBool(getState(r1, i-j) == player), \
+        fromBool(getState(r1, i-j+1) == player) \
+      ) \
+    ) == 1 then i-j else l fi
+
+    r = if AND( \
+      AND( \
+        inRange(i+j), \
+        fromBool(rBroken == 0) \
+      ), \
+      AND( \
+        fromBool(getState(r1, i+j) == player), \
+        fromBool(getState(r1, i+j-1) == player) \
+      ) \
+    ) == 1 then i+j else r fi
+  endfor
+
+  for field k in 0..7 do
+    field e = if l <= k && k <= r then player else 0 fi
+    r1[k] == e
+  endfor
+
+  return 1
+
+// player: user index, 1 or 2
+// x, y: coordinates of new player move
+// ob00, ..., ob77: old board state
+// nb00, ..., nb77: new board state
+
+def main(\
+  field player, field x, field y, \
+  field ob00, field ob01, field ob02, field ob03, field ob04, field ob05, field ob06, field ob07, \
+  field ob10, field ob11, field ob12, field ob13, field ob14, field ob15, field ob16, field ob17, \
+  field ob20, field ob21, field ob22, field ob23, field ob24, field ob25, field ob26, field ob27, \
+  field ob30, field ob31, field ob32, field ob33, field ob34, field ob35, field ob36, field ob37, \
+  field ob40, field ob41, field ob42, field ob43, field ob44, field ob45, field ob46, field ob47, \
+  field ob50, field ob51, field ob52, field ob53, field ob54, field ob55, field ob56, field ob57, \
+  field ob60, field ob61, field ob62, field ob63, field ob64, field ob65, field ob66, field ob67, \
+  field ob70, field ob71, field ob72, field ob73, field ob74, field ob75, field ob76, field ob77, \
+  field nb00, field nb01, field nb02, field nb03, field nb04, field nb05, field nb06, field nb07, \
+  field nb10, field nb11, field nb12, field nb13, field nb14, field nb15, field nb16, field nb17, \
+  field nb20, field nb21, field nb22, field nb23, field nb24, field nb25, field nb26, field nb27, \
+  field nb30, field nb31, field nb32, field nb33, field nb34, field nb35, field nb36, field nb37, \
+  field nb40, field nb41, field nb42, field nb43, field nb44, field nb45, field nb46, field nb47, \
+  field nb50, field nb51, field nb52, field nb53, field nb54, field nb55, field nb56, field nb57, \
+  field nb60, field nb61, field nb62, field nb63, field nb64, field nb65, field nb66, field nb67, \
+  field nb70, field nb71, field nb72, field nb73, field nb74, field nb75, field nb76, field nb77 \
+) -> (field):
+  // rows of old board
+  field[8] obx0 = [ob00, ob01, ob02, ob03, ob04, ob05, ob06, ob07]
+  field[8] obx1 = [ob10, ob11, ob12, ob13, ob14, ob15, ob16, ob17]
+  field[8] obx2 = [ob20, ob21, ob22, ob23, ob24, ob25, ob26, ob27]
+  field[8] obx3 = [ob30, ob31, ob32, ob33, ob34, ob35, ob36, ob37]
+  field[8] obx4 = [ob40, ob41, ob42, ob43, ob44, ob45, ob46, ob47]
+  field[8] obx5 = [ob50, ob51, ob52, ob53, ob54, ob55, ob56, ob57]
+  field[8] obx6 = [ob60, ob61, ob62, ob63, ob64, ob65, ob66, ob67]
+  field[8] obx7 = [ob70, ob71, ob72, ob73, ob74, ob75, ob76, ob77]
+
+  // colums of old board
+  field[8] oby0 = [ob00, ob10, ob20, ob30, ob40, ob50, ob60, ob70]
+  field[8] oby1 = [ob01, ob11, ob21, ob31, ob41, ob51, ob61, ob71]
+  field[8] oby2 = [ob02, ob12, ob22, ob32, ob42, ob52, ob62, ob72]
+  field[8] oby3 = [ob03, ob13, ob23, ob33, ob43, ob53, ob63, ob73]
+  field[8] oby4 = [ob04, ob14, ob24, ob34, ob44, ob54, ob64, ob74]
+  field[8] oby5 = [ob05, ob15, ob25, ob35, ob45, ob55, ob65, ob75]
+  field[8] oby6 = [ob06, ob16, ob26, ob36, ob46, ob56, ob66, ob76]
+  field[8] oby7 = [ob07, ob17, ob27, ob37, ob47, ob57, ob67, ob77]
+
+  // rows of new board
+  field[8] nbx0 = [nb00, nb01, nb02, nb03, nb04, nb05, nb06, nb07]
+  field[8] nbx1 = [nb10, nb11, nb12, nb13, nb14, nb15, nb16, nb17]
+  field[8] nbx2 = [nb20, nb21, nb22, nb23, nb24, nb25, nb26, nb27]
+  field[8] nbx3 = [nb30, nb31, nb32, nb33, nb34, nb35, nb36, nb37]
+  field[8] nbx4 = [nb40, nb41, nb42, nb43, nb44, nb45, nb46, nb47]
+  field[8] nbx5 = [nb50, nb51, nb52, nb53, nb54, nb55, nb56, nb57]
+  field[8] nbx6 = [nb60, nb61, nb62, nb63, nb64, nb65, nb66, nb67]
+  field[8] nbx7 = [nb70, nb71, nb72, nb73, nb74, nb75, nb76, nb77]
+
+  // colums of new board
+  field[8] nby0 = [nb00, nb10, nb20, nb30, nb40, nb50, nb60, nb70]
+  field[8] nby1 = [nb01, nb11, nb21, nb31, nb41, nb51, nb61, nb71]
+  field[8] nby2 = [nb02, nb12, nb22, nb32, nb42, nb52, nb62, nb72]
+  field[8] nby3 = [nb03, nb13, nb23, nb33, nb43, nb53, nb63, nb73]
+  field[8] nby4 = [nb04, nb14, nb24, nb34, nb44, nb54, nb64, nb74]
+  field[8] nby5 = [nb05, nb15, nb25, nb35, nb45, nb55, nb65, nb75]
+  field[8] nby6 = [nb06, nb16, nb26, nb36, nb46, nb56, nb66, nb76]
+  field[8] nby7 = [nb07, nb17, nb27, nb37, nb47, nb57, nb67, nb77]
+
+  field[8] ox = getBoard(obx0, obx1, obx2, obx3, obx4, obx5, obx6, obx7, x)
+  field[8] oy = getBoard(oby0, oby1, oby2, oby3, oby4, oby5, oby6, oby7, y)
+  field[8] od1 = getDiogonal1(obx0, obx1, obx2, obx3, obx4, obx5, obx6, obx7, x, y)
+  field[8] od2 = getDiogonal2(obx0, obx1, obx2, obx3, obx4, obx5, obx6, obx7, x, y)
+
+  field[8] nx = getBoard(nbx0, nbx1, nbx2, nbx3, nbx4, nbx5, nbx6, nbx7, x)
+  field[8] ny = getBoard(nby0, nby1, nby2, nby3, nby4, nby5, nby6, nby7, y)
+  field[8] nd1 = getDiogonal1(nbx0, nbx1, nbx2, nbx3, nbx4, nbx5, nbx6, nbx7, x, y)
+  field[8] nd2 = getDiogonal2(nbx0, nbx1, nbx2, nbx3, nbx4, nbx5, nbx6, nbx7, x, y)
+
+  // TODO: check only (x, y) are changed
+  // checkBoard()
+
+  checkMove(player, ox, nx, x) == 1
+  checkMove(player, oy, ny, y) == 1
+  checkMove(player, od1, nd1, x) == 1
+  checkMove(player, od2, nd2, x) == 1
+
+  return 1

@@ -1,0 +1,42 @@
+import "utils/binary/or.code" as OR
+
+import "../lib/boolean/fromBool.code" as fromBool
+
+def checkWinner(field winner, field[8] b) -> (field):
+  for field i in 0..7  do
+    field c = b[i]
+    1 == OR(fromBool(b[i] == 0), fromBool(b[i] == winner))
+  endfor
+
+  return 1
+
+def main(
+  field winner,
+  field b00, field b01, field b02, field b03, field b04, field b05, field b06, field b07, \
+  field b10, field b11, field b12, field b13, field b14, field b15, field b16, field b17, \
+  field b20, field b21, field b22, field b23, field b24, field b25, field b26, field b27, \
+  field b30, field b31, field b32, field b33, field b34, field b35, field b36, field b37, \
+  field b40, field b41, field b42, field b43, field b44, field b45, field b46, field b47, \
+  field b50, field b51, field b52, field b53, field b54, field b55, field b56, field b57, \
+  field b60, field b61, field b62, field b63, field b64, field b65, field b66, field b67, \
+  field b70, field b71, field b72, field b73, field b74, field b75, field b76, field b77
+) -> (field):
+  field[8] bx0 = [b00, b01, b02, b03, b04, b05, b06, b07]
+  field[8] bx1 = [b10, b11, b12, b13, b14, b15, b16, b17]
+  field[8] bx2 = [b20, b21, b22, b23, b24, b25, b26, b27]
+  field[8] bx3 = [b30, b31, b32, b33, b34, b35, b36, b37]
+  field[8] bx4 = [b40, b41, b42, b43, b44, b45, b46, b47]
+  field[8] bx5 = [b50, b51, b52, b53, b54, b55, b56, b57]
+  field[8] bx6 = [b60, b61, b62, b63, b64, b65, b66, b67]
+  field[8] bx7 = [b70, b71, b72, b73, b74, b75, b76, b77]
+
+  1 == checkWinner(winner, bx0)
+  1 == checkWinner(winner, bx1)
+  1 == checkWinner(winner, bx2)
+  1 == checkWinner(winner, bx3)
+  1 == checkWinner(winner, bx4)
+  1 == checkWinner(winner, bx5)
+  1 == checkWinner(winner, bx6)
+  1 == checkWinner(winner, bx7)
+
+  return 1
