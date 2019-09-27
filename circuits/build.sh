@@ -11,10 +11,14 @@ for d in $TARGET_DIR ; do
     TEST_FILE=${DIR}.test.code
     cd $DIR
 
-    if [[ ! -z "${TEST}" ]]; then
+    if [[ -z "$TEST" ]]; then
+        echo "Test $DIR"
+
         if [ -f "$TEST_FILE" ]; then
             echo "Testing $DIR... "
-            RUST_BACKTRACE=1 ../../zokrates compile -i $TEST_FILE # 1> /dev/null
+            RUST_BACKTRACE=1 ../../zokrates compile -i $TEST_FILE -o $TEST_FILE.out --light # 1> /dev/null
+
+            RUST_BACKTRACE=1 ../../zokrates compute-witness -i $TEST_FILE.out -o $TEST_FILE.witness --light
         else
             echo "No test file exists"
             exit -1
@@ -26,13 +30,13 @@ for d in $TARGET_DIR ; do
         rm -rf *.key
 
         echo "Compilling $DIR... "
-        RUST_BACKTRACE=1 ../../zokrates compile -i $DIR.code
+        RUST_BACKTRACE=1 ../../zokrates compile -i $DIR.code --light
 
         echo "Setting proving scheme..."
-        ../../zokrates setup --proving-scheme pghr13
+        ../../zokrates setup --proving-scheme pghr13 --light
 
         echo "Exporting verifier contract..."
-        ../../zokrates export-verifier --proving-scheme pghr13 --output "${DIR}_Verifier.sol" --contract-name "${DIR}_Verifier"
+        ../../zokrates export-verifier --proving-scheme pghr13 --output "${DIR}_Verifier.sol" --contract-name "${DIR}_Verifier" --light
 
         if [ -f "${DIR}_Verifier.sol" ]; then
             echo "Move verifier contract"
@@ -42,5 +46,6 @@ for d in $TARGET_DIR ; do
         echo "$DIR initialized"
         echo ""
     fi
+
     cd ..
 done

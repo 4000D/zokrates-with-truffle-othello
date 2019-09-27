@@ -2,6 +2,8 @@ import "utils/binary/or.code" as OR
 
 import "../lib/boolean/fromBool.code" as fromBool
 
+// if 0 exists, no winnter
+// winner <- # of count...
 def checkWinner(field winner, field[8] b) -> (field):
   for field i in 0..7  do
     field c = b[i]
@@ -10,8 +12,8 @@ def checkWinner(field winner, field[8] b) -> (field):
 
   return 1
 
-def main(
-  field winner,
+def main( \
+  field winner, \
   field b00, field b01, field b02, field b03, field b04, field b05, field b06, field b07, \
   field b10, field b11, field b12, field b13, field b14, field b15, field b16, field b17, \
   field b20, field b21, field b22, field b23, field b24, field b25, field b26, field b27, \

@@ -8,22 +8,35 @@
   },
   "scripts": {
     "test": "truffle test",
-    "circuit:othelloMove:test": "TEST=1 npm run circuit:othelloMove:build",
+    "testrpc": "ganache-cli -l 8500000",
     "circuit:othelloMove:build": "DIR=othelloMove npm run docker:build:dir",
-    "circuit:othelloDecide:test": "TEST=1 npm run circuit:othelloDecide:build",
+    "circuit:othelloMove:test": "TEST=1 DIR=othelloMove npm run docker:build:dir",
     "circuit:othelloDecide:build": "DIR=othelloDecide npm run docker:build:dir",
+    "circuit:othelloDecide:test": "TEST=1 DIR=othelloDecide npm run docker:build:dir",
+    "circuit:testFor:test": "TEST=1 DIR=testFor npm run docker:build:dir",
     "docker": "npm run docker:start && npm run docker:build",
     "docker:start": "docker run -d -it --name zokrates -v $(pwd)/circuits:/home/zokrates/circuits -v $(pwd)/contracts:/home/zokrates/contracts 4000d/zokrates:latest /bin/bash",
     "docker:stop": "docker stop zokrates && docker rm zokrates",
     "docker:restart": "npm run docker:stop && npm run docker:start",
-    "docker:build": "docker exec -it -e TEST=$TEST --workdir /home/zokrates/circuits zokrates /bin/bash build.sh",
-    "docker:build:dir": "docker exec -it -e TEST=$TEST --workdir /home/zokrates/circuits zokrates /bin/bash build.sh $DIR",
+    "docker:build": "docker exec -it --workdir /home/zokrates/circuits zokrates /bin/bash build.sh",
+    "docker:build:dir": "docker exec -it --workdir /home/zokrates/circuits zokrates /bin/bash build.sh $DIR",
     "docker:console": "docker exec -it --workdir /home/zokrates/circuits zokrates /bin/bash"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^6.4.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
     "ganache-cli": "^6.7.0",
+    "openzeppelin-test-helpers": "^0.4.3",
     "truffle": "^5.0.37"
+  },
+  "dependencies": {
+    "clovers-reversi": "^1.0.21",
+    "dockerode": "^3.0.1",
+    "lodash": "^4.17.15",
+    "othello-game-logic": "0.0.15"
   }
 }

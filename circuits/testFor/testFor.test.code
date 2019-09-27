@@ -1,0 +1,80 @@
+import "../lib/boolean/fromBool.code" as fromBool
+
+import "../lib/math/min.code" as min
+// import "../lib/math/sub.code" as sub
+
+def sub(field x, field y) -> (field):
+  field z = x - y
+  return if z <= x then z else 1000 fi
+
+def inRange(field i) -> (field):
+  return fromBool(0 <= i && i < 8)
+
+def inRangeOffset(field i, field offset) -> (field):
+  return fromBool(offset <= i && i < offset + 8)
+
+def getState(field[8] b, field i) -> (field):
+  field k = min(i, 7)
+  return if inRange(i) == 1 then b[k] else 0 fi
+
+def getState2(field[8] b, field i) -> (field):
+  field[26] padded = [0;26]
+
+  for field t in 0..7 do
+    padded[t+9] = b[t]
+  endfor
+
+  return if inRangeOffset(i+9, 9) == 1 then padded[i+9] else 0 fi
+
+def main() -> (field):
+  field counter = 0
+
+  for field i in 0..4 do
+    counter = counter + 1
+  endfor
+
+  counter == 4
+
+  // pass
+  inRange(0-7) == 0
+  inRange(1-7) == 0
+  inRange(2-7) == 0
+  inRange(3-7) == 0
+  inRange(4-7) == 0
+  inRange(5-7) == 0
+  inRange(6-7) == 0
+
+  inRange(0) == 1
+  inRange(1) == 1
+  inRange(2) == 1
+  inRange(3) == 1
+  inRange(4) == 1
+  inRange(5) == 1
+  inRange(6) == 1
+  inRange(7) == 1
+
+  field[8] a = [0, 1, 2, 3, 4, 5, 6, 7]
+
+
+
+  for field i in 1..7 do
+    field j = 0-i
+    1 == fromBool(j > 0)
+    1 == fromBool(j > 7)
+
+    // a[8] == 0
+
+    getState2(a, 0-i) == 0
+  endfor
+
+  getState2(a, 0) == 0
+  getState2(a, 1) == 1
+  getState2(a, 2) == 2
+  getState2(a, 3) == 3
+  getState2(a, 4) == 4
+  getState2(a, 5) == 5
+  getState2(a, 6) == 6
+  getState2(a, 7) == 7
+
+
+  return 1
